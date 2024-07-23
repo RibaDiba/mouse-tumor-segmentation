@@ -1,7 +1,7 @@
-# Mouse Tumor Segmentation
+## Using Detectron 2 for instance segmentation
 
-## Overview 
+### Use 
 
-The code for each model is in its respectecive branch, the relating data, preprocessing code, and notebook are found there. The model is also stored within each respective branch
+Run get_depth_map.py first to get all the images, then run save_images.py and process_images.py to fully format the data into coco json format
 
 
