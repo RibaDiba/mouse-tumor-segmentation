@@ -1,4 +1,4 @@
-## Fine Tuning with SAM 
+## Fine Tuning with MedSAM 
 
 ### Use 
 
