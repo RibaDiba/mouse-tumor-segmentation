@@ -1,8 +1,4 @@
-import os
-import json
-import os
-import cv2
-import glob
+import os, cv2, json, glob
 
 category_ids = {
     "Tumor": 0
@@ -49,8 +45,8 @@ def images_annotations_info(maskpath):
             if original_file_name not in map(lambda img: img['file_name'], images):
                 image = {
                     "id": image_id + 1,
-                    "width": width,
-                    "height": height,
+                    "width": 640,
+                    "height": 614,
                     "file_name": original_file_name,
                 }
                 images.append(image)

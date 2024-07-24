@@ -1,4 +1,7 @@
 import os, cv2, random, json, glob
+import importlib
+import format_images
+importlib.reload(format_images)
 from format_images import format_images
 
 category_ids = {

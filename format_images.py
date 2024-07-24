@@ -195,7 +195,7 @@ def crop_images(image_array):
 
 
 
-
+# TODO: add function to format rgb instead of depth
 def format_images():
 
     folder_path = './data/images'
@@ -204,7 +204,7 @@ def format_images():
     depth = read_images_to_array(folder_path_depth)
 
     masks, images = split_images(images)
-    train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(images, masks)
+    train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(depth, masks)
 
     train_images = crop_raw_images(train_images)
     train_images = add_padding(train_images, 0, 67)

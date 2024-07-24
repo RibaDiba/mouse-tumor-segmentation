@@ -3589,33 +3589,33 @@
     "images": [
         {
             "file_name": "image_2.png",
-            "height": 615,
+            "height": 614,
             "id": 1,
-            "width": 639
+            "width": 640
         },
         {
             "file_name": "image_3.png",
-            "height": 615,
+            "height": 614,
             "id": 2,
-            "width": 639
+            "width": 640
         },
         {
             "file_name": "image_1.png",
-            "height": 615,
+            "height": 614,
             "id": 3,
-            "width": 639
+            "width": 640
         },
         {
             "file_name": "image_4.png",
-            "height": 615,
+            "height": 614,
             "id": 4,
-            "width": 639
+            "width": 640
         },
         {
             "file_name": "image_5.png",
-            "height": 615,
+            "height": 614,
             "id": 5,
-            "width": 639
+            "width": 640
         }
     ],
     "info": {},
