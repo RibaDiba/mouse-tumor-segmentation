@@ -243,7 +243,6 @@ def format_images():
     depth = read_images_to_array('./data/depth_images/')
     masks, raw = split_images(images)
     og_red = masks
-    images = depth
 
     train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(images, masks)
 
