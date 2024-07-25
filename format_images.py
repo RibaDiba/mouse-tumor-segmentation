@@ -204,7 +204,7 @@ def format_images():
     depth = read_images_to_array(folder_path_depth)
 
     masks, images = split_images(images)
-    train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(depth, masks)
+    train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(images, masks)
 
     train_images = crop_raw_images(train_images)
     train_images = add_padding(train_images, 0, 67)
@@ -218,6 +218,33 @@ def format_images():
     val_masks = crop_masks(val_masks)
     val_masks = add_padding(val_masks, 31, 0)
     val_masks = zoom_at(val_masks, 1.156, coord=None)
+    val_masks = create_binary_masks(val_masks)
+
+    return train_images, train_masks, val_images, val_masks, test_images, test_masks 
+
+
+def format_depth():
+
+    folder_path = './data/images'
+    folder_path_depth = './data/depth_images'
+    images = read_images_to_array(folder_path)
+    depth = read_images_to_array(folder_path_depth)
+
+    masks, images = split_images(images)
+    train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(depth, masks)
+
+    train_images = crop_raw_images(train_images)
+    train_images = add_padding(train_images, 0, 67)
+    train_masks = crop_masks(train_masks)
+    train_masks = add_padding(train_masks, 31, 0)
+    # train_masks = zoom_at(train_masks, 1.156, coord=None)
+    train_masks = create_binary_masks(train_masks)
+
+    val_images = crop_raw_images(val_images)
+    val_images = add_padding(val_images, 0, 67)
+    val_masks = crop_masks(val_masks)
+    val_masks = add_padding(val_masks, 31, 0)
+    # val_masks = zoom_at(val_masks, 1.156, coord=None)
     val_masks = create_binary_masks(val_masks)
 
     return train_images, train_masks, val_images, val_masks, test_images, test_masks 
