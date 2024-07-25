@@ -177,7 +177,7 @@ def crop_images(image_array):
     
     cropped_images = []
     
-    for i in range(len(image_array) -1): 
+    for i in range(len(image_array)): 
         
         image = image_array[i]
         
