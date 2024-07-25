@@ -54,7 +54,7 @@ def split_train_val_test(images, masks):
     test_images = []
     test_masks = []
 
-    for i in range(len(images)): 
+    for i in range(len(images) -1): 
 
     # these numbers are made specifically for this dataset 
         
