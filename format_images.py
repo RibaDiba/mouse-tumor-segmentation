@@ -11,7 +11,7 @@ def read_images_to_array(folder_path):
   # Get a sorted list of filenames
   filenames = sorted(os.listdir(folder_path))
   for filename in filenames:
-    if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".bin"):
+    if filename.endswith(".jpg") or filename.endswith(".png"):
       img_path = os.path.join(folder_path, filename)
       img = cv2.imread(img_path)
 
