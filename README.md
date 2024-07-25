@@ -1,7 +1,3 @@
-# Mouse Tumor Segmentation
+## Visualization
 
-## Overview 
-
-The code for each model is in its respectecive branch, the relating data, preprocessing code, and notebook are found there. The model is also stored within each respective branch
-
-
+This branch is to visualize and compare results from different models in one notebook
