@@ -86,5 +86,9 @@ train_json_path = "./data/coco_json/train/images/train.json"
 val_mask_path = "./data/coco_json/val/masks"
 val_json_path = "./data/coco_json/val/images/val.json"
 
+test_mask_path = "./data/coco_json/test/masks"
+test_json_path = "./data/coco_json/test/images/test.json"
+
 process_masks(train_mask_path, train_json_path)
 process_masks(val_mask_path, val_json_path)
+process_masks(test_mask_path, test_json_path)

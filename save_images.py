@@ -33,3 +33,5 @@ save_images(train_images, './data/coco_json/train/images', base_filename='image'
 save_images(train_masks, './data/coco_json/train/masks/Tumor', base_filename='image')
 save_images(val_images, './data/coco_json/val/images', base_filename='image')
 save_images(val_masks, './data/coco_json/val/masks/Tumor', base_filename='image')
+save_images(test_images, './data/coco_json/test/images', base_filename='image')
+save_images(test_masks, './data/coco_json/test/masks/Tumor', base_filename='image')

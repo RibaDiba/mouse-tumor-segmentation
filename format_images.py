@@ -55,10 +55,10 @@ def split_train_val_test(images, masks):
 
     # these numbers are made specifically for this dataset 
         
-        if i < 27: 
+        if i < 20: 
             train_images.append(images[i])
             train_masks.append(masks[i])
-        elif i < 32:
+        elif i < 25:
             val_images.append(images[i])
             val_masks.append(masks[i])
         else: 
@@ -219,6 +219,13 @@ def format_images():
     val_masks = add_padding(val_masks, 31, 0)
     val_masks = zoom_at(val_masks, 1.156, coord=None)
     val_masks = create_binary_masks(val_masks)
+
+    test_images = crop_raw_images(test_images)
+    test_images = add_padding(test_images, 0, 67)
+    test_masks = crop_masks(test_masks)
+    test_masks = add_padding(test_masks, 31, 0)
+    test_masks = zoom_at(test_masks, 1.156, coord=None)
+    test_masks = create_binary_masks(test_masks)
 
     return train_images, train_masks, val_images, val_masks, test_images, test_masks 
 
