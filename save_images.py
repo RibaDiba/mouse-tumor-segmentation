@@ -1,6 +1,6 @@
 import os, random, cv2
 import matplotlib.pyplot as plt
-import tqdm
+from tqdm import tqdm
 
 def read_images_to_array(folder_path):
 
@@ -17,31 +17,26 @@ def read_images_to_array(folder_path):
 
   return image_array
 
-MedSAM_greyscale = read_images_to_array('./images_MedSAM_greyscale')
-MedSAM_rgb = read_images_to_array('./images_MedSAM_rgb')
-SAM_greyscale = read_images_to_array('./images_SAM_greyscale')
-SAM_rgb = read_images_to_array('./images_SAM_rgb')
+MedSAM_infused = read_images_to_array('./MedSAM_infused')
+MedSAM_rgb = read_images_to_array('./MedSAM_rgb')
+MedSAM_depth = read_images_to_array('./MedSAM_depth')
 
-for i in tqdm(range(len(SAM_rgb))):
+for i in tqdm(range(len(MedSAM_rgb)), desc="Saving Images"):
 
-     M_greyscale = MedSAM_greyscale[i]
+     M_infused = MedSAM_infused[i]
      M_rgb = MedSAM_rgb[i]
-     S_greyscale = SAM_greyscale[i]
-     S_rgb = SAM_rgb[i]
+     M_depth = MedSAM_depth[i]
 
-     fig, ax = plt.subplots(nrows=4, figsize=[7,7])
+     fig, ax = plt.subplots(nrows=3, figsize=[7,7])
 
-     ax[0].imshow(M_greyscale)
-     ax[0].set_title("MedSAM Greyscale")
+     ax[0].imshow(M_infused)
+     ax[0].set_title("MedSAM rgb + depth info")
 
-     ax[1].imshow(S_greyscale)
-     ax[1].set_title("SAM Greyscale")
+     ax[1].imshow(M_depth)
+     ax[1].set_title("MedSAM Greyscale")
 
      ax[2].imshow(M_rgb)
      ax[2].set_title("MedSAM RGB")
-
-     ax[3].imshow(S_rgb)
-     ax[3].set_title("SAM RGB")
 
      for a in ax: 
         a.axis("off")
