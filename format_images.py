@@ -227,12 +227,12 @@ def format_depth():
 
     test_images = crop_raw_images(test_images)
     test_images = add_padding(test_images, 0, 67)
-    test_images = crop_images(test_images)
+    # test_images = crop_images(test_images)
     test_masks = crop_masks(test_masks)
     test_masks = add_padding(test_masks, 31, 0)
     #test_masks = zoom_at(test_masks, 1.156, coord=None)
     test_masks = create_binary_masks(test_masks)
-    test_masks = crop_images(test_masks)
+    # test_masks = crop_images(test_masks)
 
     return train_images, train_masks, val_images, val_masks, test_images, test_masks
 
@@ -266,11 +266,11 @@ def format_images():
 
     test_images = crop_raw_images(test_images)
     test_images = add_padding(test_images, 0, 67)
-    test_images = crop_images(test_images)
+    #test_images = crop_images(test_images)
     test_masks = crop_masks(test_masks)
     test_masks = add_padding(test_masks, 31, 0)
     test_masks = zoom_at(test_masks, 1.156, coord=None)
     test_masks = create_binary_masks(test_masks)
-    test_masks = crop_images(test_masks)
+    #test_masks = crop_images(test_masks)
 
     return train_images, train_masks, val_images, val_masks, test_images, test_masks     
