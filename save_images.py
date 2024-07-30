@@ -17,29 +17,34 @@ def read_images_to_array(folder_path):
 
   return image_array
 
-MedSAM_infused = read_images_to_array('./MedSAM_infused')
-MedSAM_rgb = read_images_to_array('./MedSAM_rgb')
-MedSAM_depth = read_images_to_array('./MedSAM_depth')
+def save_images(folder_path1, folder_path2, folder_path3, title1, title2, title3, folder_save_path):
+  image_array1 = read_images_to_array(folder_path1)
+  image_array2 = read_images_to_array(folder_path2)
+  image_array3 = read_images_to_array(folder_path3)
 
-for i in tqdm(range(len(MedSAM_rgb)), desc="Saving Images"):
+  for i in tqdm(range(len(image_array1)), desc="Saving Images"):
 
-     M_infused = MedSAM_infused[i]
-     M_rgb = MedSAM_rgb[i]
-     M_depth = MedSAM_depth[i]
+     image1 = image_array1[i]
+     image2 = image_array2[i]
+     image3 = image_array3[i]
 
-     fig, ax = plt.subplots(nrows=3, figsize=[7,7])
+     fig, ax = plt.subplots(nrows=3, figsiz=[7,7])
 
-     ax[0].imshow(M_infused)
-     ax[0].set_title("MedSAM rgb + depth info")
+     ax[0].imshow(image1)
+     ax[0].set_title(title1)
 
-     ax[1].imshow(M_depth)
-     ax[1].set_title("MedSAM Greyscale")
+     ax[1].imshow(image2)
+     ax[1].set_title(title2)
 
-     ax[2].imshow(M_rgb)
-     ax[2].set_title("MedSAM RGB")
+     ax[2].imshow(image3)
+     ax[2].set_title(title3)
 
-     for a in ax: 
-        a.axis("off")
+     for a in ax:
+       a.axis("off")
 
-     fig.savefig(os.path.join("./final_images", f"image_{i}.png"))
-     plt.close(fig)
+     fig.savefig(os.path.join(folder_save_path, f"image_{i}.png"))
+     fig.close()
+
+
+
+
