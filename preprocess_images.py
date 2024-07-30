@@ -245,11 +245,12 @@ def read_contours_array(data_array):
 
           plt.contourf(x,y,z, levels=100, cmap="grey")
           plt.gca().set_aspect('equal')
-
+          plt.axis('off')
           x, y, z, filename = data
 
           plt.contourf(x, y, z, levels=100, cmap="grey")
           plt.gca().set_aspect('equal')
+          plt.axis('off')
 
           # Save the plot to a buffer
           buf = io.BytesIO()
