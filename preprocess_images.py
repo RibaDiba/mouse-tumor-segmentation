@@ -260,6 +260,7 @@ def read_contours_array(data_array):
           # Convert the buffer to an image
           image = Image.open(buf)
           image = np.array(image)
+          image = Image.fromarray(image)
           image_array.append(image)
 
           buf.close()
