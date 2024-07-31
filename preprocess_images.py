@@ -4,6 +4,7 @@ import cv2, os, random, io
 from scipy.interpolate import griddata
 from tqdm import tqdm
 from PIL import Image
+from io import BytesIO
 
 # preprocessing image functions
 
@@ -260,13 +261,45 @@ def read_contours_array(data_array):
           # Convert the buffer to an image
           image = Image.open(buf)
           image = np.array(image)
-          image = Image.fromarray(image)
           image_array.append(image)
 
           buf.close()
           plt.close()
 
      return image_array      
+
+def read_contours_array_depth(data_array):
+     
+     image_array = []
+
+     for data in tqdm(data_array, desc="Saving Contour Plots"):
+          x, y, z, original_filename = data
+          base_file_name = os.path.splitext(original_filename)[0]  
+          file_name = f"{base_file_name}.png"
+
+          plt.contourf(x, y, z, levels=100, cmap="grey")
+          plt.gca().set_aspect('equal')
+          plt.axis("off")
+
+          # Save the plot to a buffer
+          buf = io.BytesIO()
+          plt.savefig(buf, format='jpg')
+          buf.seek(0)
+
+          # Convert the buffer to an image
+          image = Image.open(buf)
+          image = np.array(image)
+          image_array.append(image)
+
+          buf.close()
+          plt.close()
+
+     return image_array
+
+
+
+
+          
 
 
 def infuse_depth_into_blue_channel(image_array, depth_array):
@@ -372,7 +405,7 @@ def create_grayscale():
     masks, raw = prepreprocess()
     og = raw
 
-    depth_maps = read_contours_array(data_array)
+    depth_maps = read_contours_array_depth(data_array)
 
     train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(depth_maps, masks)
 
