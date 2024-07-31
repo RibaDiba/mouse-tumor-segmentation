@@ -1,6 +1,12 @@
-import random, cv2, os
-import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.pyplot as plt 
+import numpy as np 
+import cv2, os, random, io
+from scipy.interpolate import griddata
+from tqdm import tqdm
+from PIL import Image
+from io import BytesIO
+
+# preprocessing image functions
 
 def read_images_to_array(folder_path):
 
@@ -76,7 +82,7 @@ def crop_raw_images(image_array):
         image = image_array[i]
         
         mask = np.zeros(image.shape, dtype=np.uint8)
-        mask = cv2.circle(mask, (320, 240), 200, (255,255,255), -1)
+        mask = cv2.circle(mask, (320, 240), 180, (255,255,255), -1)
 
         res = cv2.bitwise_and(image, mask)
         res[mask==0] = 255
@@ -193,10 +199,236 @@ def crop_images(image_array):
                               
     return cropped_images
 
+# reading bin files
 
+def read_bin(file_path): 
+    with open(file_path, 'rb') as fid:
+        data = np.fromfile(fid, dtype='>f8')
+    
+    points = data.reshape(-1, 3)
 
-# TODO: add function to format rgb instead of depth
-def format_images():
+    #points[:, 0] -= np.median(points[:, 0])
+    #points[:, 1] -= np.median(points[:, 1])
+    #points[:, 2] -= np.median(points[:, 2])
+    
+    x = points[:, 0]
+    y = points[:, 1]
+    z = points[:, 2]
+
+    grid_x, grid_y = np.meshgrid(
+        np.linspace(min(x), max(x), 256),
+        np.linspace(min(y), max(y), 256)
+    )
+    
+    grid_z = griddata((x, y), z, (grid_x, grid_y), method='linear')
+
+    return grid_x, grid_y, grid_z
+
+def read_all_bins(folder_path):
+
+     data_array = []
+     filenames = sorted(os.listdir(folder_path))
+     
+     for filename in tqdm(filenames, desc="Reading Bin Files"):
+          if filename.endswith(".bin"):
+               file_path = os.path.join(folder_path, filename)
+               x, y, z = read_bin(file_path)
+               data_array.append((x, y, z, filename)) 
+    
+     return data_array
+
+def read_contours_array(data_array):
+    
+     image_array = []
+    
+     for data in tqdm(data_array, desc="Reading Contour Plots"):
+          x, y, z, filename = data
+
+          plt.contourf(x,y,z, levels=100, cmap="grey")
+          plt.gca().set_aspect('equal')
+          plt.axis('off')
+          x, y, z, filename = data
+
+          plt.contourf(x, y, z, levels=100, cmap="grey")
+          plt.gca().set_aspect('equal')
+          plt.axis('off')
+
+          # Save the plot to a buffer
+          buf = io.BytesIO()
+          plt.savefig(buf, format='png')
+          buf.seek(0)
+
+          # Convert the buffer to an image
+          image = Image.open(buf)
+          image = np.array(image)
+          image_array.append(image)
+
+          buf.close()
+          plt.close()
+
+     return image_array      
+
+def read_contours_array_depth(data_array):
+     
+     image_array = []
+
+     for data in tqdm(data_array, desc="Saving Contour Plots"):
+          x, y, z, original_filename = data
+          base_file_name = os.path.splitext(original_filename)[0]  
+          file_name = f"{base_file_name}.png"
+
+          plt.contourf(x, y, z, levels=100, cmap="grey")
+          plt.gca().set_aspect('equal')
+          plt.axis("off")
+
+          # Save the plot to a buffer
+          buf = io.BytesIO()
+          plt.savefig(buf, format='jpg')
+          buf.seek(0)
+
+          # Convert the buffer to an image
+          image = Image.open(buf)
+          image = np.array(image)
+          image_array.append(image)
+
+          buf.close()
+          plt.close()
+
+     return image_array
+
+def infuse_depth_into_blue_channel(image_array, depth_array):
+    image_array_infused = []
+
+    for i in tqdm(range(len(image_array)), desc="Infusing Images"):
+        image = image_array[i]
+        depth_map = depth_array[i]
+
+        # Resize the depth map to match the image dimensions
+        depth_map_resized = cv2.resize(depth_map, (image.shape[1], image.shape[0]))
+
+        # Ensure depth map is single channel (grayscale)
+        if len(depth_map_resized.shape) == 3:
+            depth_map_resized = cv2.cvtColor(depth_map_resized, cv2.COLOR_BGR2GRAY)
+
+        # Split the image into RGB channels
+        b, g, r = cv2.split(image)
+
+        # Normalize depth map to match the blue channel (0-255) and convert to uint8
+        depth_map_normalized = cv2.normalize(depth_map_resized, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+        # Infuse the depth map into the blue channel
+        if b.shape == depth_map_normalized.shape:
+            infused_blue = cv2.addWeighted(b, 0.5, depth_map_normalized, 0.5, 0)
+        else:
+            raise ValueError("Dimension mismatch between the blue channel and the depth map.")
+
+        # Merge the channels back
+        infused_image = cv2.merge((infused_blue, g, r))
+
+        image_array_infused.append(infused_image)
+
+    return image_array_infused
+
+# split images before infusing the raw ones 
+def prepreprocess():
+    
+     folder_path = './data/images'
+     images = read_images_to_array(folder_path)
+     masks, raw = split_images(images)
+
+     return masks, raw
+
+def preprocess_rgbd():
+    
+     bin_path = './data/bin_files'
+     data_array = read_all_bins(bin_path)
+
+     masks, raw = prepreprocess()
+     og = raw
+
+     depth_maps = read_contours_array(data_array)
+     image_array = infuse_depth_into_blue_channel(raw, depth_maps)
+
+     train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(image_array, masks)
+
+     train_images = crop_raw_images(train_images)
+     train_images = add_padding(train_images, 0, 67)
+     train_masks = crop_masks(train_masks)
+     train_masks = add_padding(train_masks, 31, 0)
+     train_masks = zoom_at(train_masks, 1.156, coord=None)
+     train_masks = create_binary_masks(train_masks)
+
+     #train_images = crop_images(train_images)
+     #rain_masks = crop_images(train_masks)
+
+     val_images = crop_raw_images(val_images)
+     val_images = add_padding(val_images, 0, 67)
+     val_masks = crop_masks(val_masks)
+     val_masks = add_padding(val_masks, 31, 0)
+     val_masks = zoom_at(val_masks, 1.156, coord=None)
+     val_masks = create_binary_masks(val_masks)
+     
+     #val_images = crop_images(val_images)
+     #val_masks = crop_images(val_masks)
+
+     test_images = crop_raw_images(test_images)
+     test_images = add_padding(test_images, 0, 67)
+     test_masks = crop_masks(test_masks)
+     test_masks = add_padding(test_masks, 31, 0)
+     test_masks = zoom_at(test_masks, 1.156, coord=None)
+     test_masks = create_binary_masks(test_masks)
+
+     # test_images = crop_images(test_images)
+     # test_masks = crop_images(test_masks)
+     
+
+     return  train_images, train_masks, val_images, val_masks, test_images, test_masks
+
+def preprocess_grayscale():
+
+    bin_path = './data/bin_files'
+    data_array = read_all_bins(bin_path)
+
+    masks, raw = prepreprocess()
+    og = raw
+
+    depth_maps = read_contours_array_depth(data_array)
+
+    train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(depth_maps, masks)
+
+    train_images = crop_raw_images(train_images)
+    train_images = add_padding(train_images, 0, 67)
+    train_masks = crop_masks(train_masks)
+    train_masks = add_padding(train_masks, 31, 0)
+    train_masks = zoom_at(train_masks, 1.156, coord=None)
+    train_masks = create_binary_masks(train_masks)
+
+    #train_images = crop_images(train_images)
+    #rain_masks = crop_images(train_masks)
+
+    val_images = crop_raw_images(val_images)
+    val_images = add_padding(val_images, 0, 67)
+    val_masks = crop_masks(val_masks)
+    val_masks = add_padding(val_masks, 31, 0)
+    val_masks = zoom_at(val_masks, 1.156, coord=None)
+    val_masks = create_binary_masks(val_masks)
+
+    #val_images = crop_images(val_images)
+    #val_masks = crop_images(val_masks)
+
+    test_images = crop_raw_images(test_images)
+    test_images = add_padding(test_images, 0, 67)
+    test_masks = crop_masks(test_masks)
+    test_masks = add_padding(test_masks, 31, 0)
+    test_masks = zoom_at(test_masks, 1.156, coord=None)
+    test_masks = create_binary_masks(test_masks)
+
+    # test_images = crop_images(test_images)
+    # test_masks = crop_images(test_masks)
+
+    return train_images, train_masks, val_images, val_masks, test_images, test_masks
+
+def preprocess_rgb():
 
     folder_path = './data/images'
     folder_path_depth = './data/depth_images'
@@ -228,44 +460,5 @@ def format_images():
     test_masks = create_binary_masks(test_masks)
 
     return train_images, train_masks, val_images, val_masks, test_images, test_masks 
-
-
-def format_depth():
-
-    folder_path = './data/images'
-    folder_path_depth = './data/depth_images'
-    images = read_images_to_array(folder_path)
-    depth = read_images_to_array(folder_path_depth)
-
-    masks, images = split_images(images)
-    train_images, train_masks, val_images, val_masks, test_images, test_masks = split_train_val_test(depth, masks)
-
-    train_images = crop_raw_images(train_images)
-    train_images = add_padding(train_images, 0, 67)
-    train_masks = crop_masks(train_masks)
-    train_masks = add_padding(train_masks, 31, 0)
-    # train_masks = zoom_at(train_masks, 1.156, coord=None)
-    train_masks = create_binary_masks(train_masks)
-
-    val_images = crop_raw_images(val_images)
-    val_images = add_padding(val_images, 0, 67)
-    val_masks = crop_masks(val_masks)
-    val_masks = add_padding(val_masks, 31, 0)
-    # val_masks = zoom_at(val_masks, 1.156, coord=None)
-    val_masks = create_binary_masks(val_masks)
-
-    test_images = crop_raw_images(test_images)
-    test_images = add_padding(test_images, 0, 67)
-    test_masks = crop_masks(test_masks)
-    test_masks = add_padding(test_masks, 31, 0)
-    # test_masks = zoom_at(test_masks, 1.156, coord=None)
-    test_masks = create_binary_masks(test_masks)
-
-    return train_images, train_masks, val_images, val_masks, test_images, test_masks 
-
-
-
-
-
 
 
