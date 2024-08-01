@@ -28,3 +28,15 @@ def get_bounding_box(image_mask):
         bbox = [x, y, x+w, y+h]
     
     return bbox
+
+def get_bounding_box_circumscribed(image_mask, x, y, radius):
+    
+    top_left = (x - radius, y - radius)
+    bottom_right = (x + radius, y + radius)
+    w = 2 * radius
+    h = 2 * radius 
+
+    bbox = [x, y, x+w, y+h]
+
+    return bbox
+    
