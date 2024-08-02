@@ -356,8 +356,8 @@ def preprocess_rgbd():
      train_masks = zoom_at(train_masks, 1.156, coord=None)
      train_masks = create_binary_masks(train_masks)
 
-     #train_images = crop_images(train_images)
-     #rain_masks = crop_images(train_masks)
+     train_images = crop_images(train_images)
+     train_masks = crop_images(train_masks)
 
      val_images = crop_raw_images(val_images)
      val_images = add_padding(val_images, 0, 67)
@@ -399,8 +399,8 @@ def preprocess_grayscale():
     train_images = add_padding(train_images, 0, 67)
     train_masks = crop_masks(train_masks)
     train_masks = add_padding(train_masks, 31, 0)
-    #train_masks = zoom_at(train_masks, 1.156, coord=None)
-    train_masks = create_binary_masks(train_masks)
+    train_masks = zoom_at(train_masks, 1.156, coord=None)
+    #train_masks = create_binary_masks(train_masks)
 
     train_images = crop_images(train_images)
     train_masks = crop_images(train_masks)
@@ -425,7 +425,7 @@ def preprocess_grayscale():
     test_images = crop_images(test_images)
     test_masks = crop_images(test_masks)
 
-    return train_images, train_masks, val_images, val_masks, test_images, test_masks, og, og_masks
+    return train_images, train_masks, val_images, val_masks, test_images, test_masks
 
 def preprocess_rgb():
 
