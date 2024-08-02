@@ -277,16 +277,14 @@ def read_contours_array_depth(data_array):
           base_file_name = os.path.splitext(original_filename)[0]  
           file_name = f"{base_file_name}.png"
 
-          plt.contourf(x, y, z, levels=100, cmap="grey")
+          plt.contourf(x, y, z, levels=100, cmap="Grays")
           plt.gca().set_aspect('equal')
           plt.axis("off")
 
-          # Save the plot to a buffer
           buf = io.BytesIO()
           plt.savefig(buf, format='jpg')
           buf.seek(0)
 
-          # Convert the buffer to an image
           image = Image.open(buf)
           image = np.array(image)
           image_array.append(image)
@@ -391,6 +389,7 @@ def preprocess_grayscale():
 
     masks, raw = prepreprocess()
     og = raw
+    og_masks = masks
 
     depth_maps = read_contours_array_depth(data_array)
 
@@ -400,17 +399,17 @@ def preprocess_grayscale():
     train_images = add_padding(train_images, 0, 67)
     train_masks = crop_masks(train_masks)
     train_masks = add_padding(train_masks, 31, 0)
-    train_masks = zoom_at(train_masks, 1.156, coord=None)
+    #train_masks = zoom_at(train_masks, 1.156, coord=None)
     train_masks = create_binary_masks(train_masks)
 
     train_images = crop_images(train_images)
-    rain_masks = crop_images(train_masks)
+    train_masks = crop_images(train_masks)
 
     val_images = crop_raw_images(val_images)
     val_images = add_padding(val_images, 0, 67)
     val_masks = crop_masks(val_masks)
     val_masks = add_padding(val_masks, 31, 0)
-    val_masks = zoom_at(val_masks, 1.156, coord=None)
+    #val_masks = zoom_at(val_masks, 1.156, coord=None)
     val_masks = create_binary_masks(val_masks)
 
     val_images = crop_images(val_images)
@@ -420,13 +419,13 @@ def preprocess_grayscale():
     test_images = add_padding(test_images, 0, 67)
     test_masks = crop_masks(test_masks)
     test_masks = add_padding(test_masks, 31, 0)
-    test_masks = zoom_at(test_masks, 1.156, coord=None)
+    #test_masks = zoom_at(test_masks, 1.156, coord=None)
     test_masks = create_binary_masks(test_masks)
 
     test_images = crop_images(test_images)
     test_masks = crop_images(test_masks)
 
-    return train_images, train_masks, val_images, val_masks, test_images, test_masks
+    return train_images, train_masks, val_images, val_masks, test_images, test_masks, og, og_masks
 
 def preprocess_rgb():
 
